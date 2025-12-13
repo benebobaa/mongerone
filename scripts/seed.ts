@@ -43,10 +43,35 @@ try {
 
     console.log("✅ Default currencies seeded");
 
-    // Note: User profiles are created automatically via Supabase triggers
-    // or application logic when users sign up
+    // Seed default categories for existing users
+    // Note: New users will get categories when they sign up
+    const existingUsers = await client`SELECT id FROM profiles LIMIT 10`;
 
-    console.log("✅ Database seeded successfully!");
+    if (existingUsers.length > 0) {
+        console.log(`\n📁 Seeding default categories for ${existingUsers.length} user(s)...`);
+
+        for (const user of existingUsers) {
+            await client`
+                INSERT INTO categories (user_id, name, type, icon, color)
+                VALUES
+                    (${user.id}, 'Salary', 'income', '💰', '#22c55e'),
+                    (${user.id}, 'Business', 'income', '💼', '#10b981'),
+                    (${user.id}, 'Investments', 'income', '📈', '#059669'),
+                    (${user.id}, 'Food & Dining', 'expense', '🍔', '#ef4444'),
+                    (${user.id}, 'Transportation', 'expense', '🚗', '#3b82f6'),
+                    (${user.id}, 'Shopping', 'expense', '🛍️', '#a855f7'),
+                    (${user.id}, 'Entertainment', 'expense', '🎬', '#ec4899'),
+                    (${user.id}, 'Bills & Utilities', 'expense', '📱', '#f59e0b'),
+                    (${user.id}, 'Health & Fitness', 'expense', '🏥', '#14b8a6'),
+                    (${user.id}, 'Education', 'expense', '📚', '#6366f1')
+                ON CONFLICT DO NOTHING
+            `;
+        }
+
+        console.log("✅ Default categories seeded");
+    }
+
+    console.log("\n✅ Database seeded successfully!");
 
 } catch (error) {
     console.error("❌ Seed failed:", error);
