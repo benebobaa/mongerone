@@ -56,9 +56,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/lib/db ./lib/db
 
-# Copy ONLY drizzle-kit package from builder (avoids reinstalling 800MB of deps)
+# Copy drizzle-kit and its dependencies from builder (avoids reinstalling 800MB)
 COPY --from=builder /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
 COPY --from=builder /app/node_modules/.bin/drizzle-kit ./node_modules/.bin/drizzle-kit
+COPY --from=builder /app/node_modules/esbuild ./node_modules/esbuild
+COPY --from=builder /app/node_modules/esbuild-register ./node_modules/esbuild-register
+COPY --from=builder /app/node_modules/@esbuild-kit ./node_modules/@esbuild-kit
+COPY --from=builder /app/node_modules/@drizzle-team ./node_modules/@drizzle-team
 
 # Switch to non-root user
 USER nextjs
