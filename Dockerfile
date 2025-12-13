@@ -6,10 +6,10 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package.json bun.lock ./
 
 # Install all dependencies (needed for build)
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # Stage 3: Build the application
 FROM base AS builder
@@ -52,17 +52,16 @@ RUN mkdir .next && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy migration and seed files (needed for pre-deploy command)
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/lib/db ./lib/db
+# Copy ONLY the generated SQL migrations (lightweight! ~10KB instead of 800MB)
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
 
-# Copy drizzle-kit and its dependencies from builder (avoids reinstalling 800MB)
-COPY --from=builder /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
-COPY --from=builder /app/node_modules/.bin/drizzle-kit ./node_modules/.bin/drizzle-kit
-COPY --from=builder /app/node_modules/esbuild ./node_modules/esbuild
-COPY --from=builder /app/node_modules/esbuild-register ./node_modules/esbuild-register
-COPY --from=builder /app/node_modules/@esbuild-kit ./node_modules/@esbuild-kit
-COPY --from=builder /app/node_modules/@drizzle-team ./node_modules/@drizzle-team
+# Copy the migration script
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrate.ts ./scripts/migrate.ts
+
+# Copy production runtime dependencies for migrations (drizzle-orm + postgres only)
+# These are already in standalone's node_modules, but we need them accessible
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
 
 # Switch to non-root user
 USER nextjs
@@ -74,5 +73,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD bun --eval "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
 
-# Start the application directly (no migrations needed at runtime)
+# Start the application (migrations should be run via pre-deploy command or init container)
+# For simple setups, you can use: CMD ["sh", "-c", "bun scripts/migrate.ts && bun server.js"]
 CMD ["bun", "server.js"]

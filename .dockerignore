@@ -58,8 +58,8 @@ CHANGELOG*
 LICENSE*
 docs/
 
-# Drizzle
-drizzle/
+# Drizzle (keep drizzle/ for SQL migrations, only ignore config)
+drizzle.config.ts
 
 # Test files
 **/*.test.*
