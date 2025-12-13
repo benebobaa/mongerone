@@ -52,6 +52,16 @@ RUN mkdir .next && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy migration and seed files (needed for pre-deploy command)
+# These are small files and won't significantly increase image size
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/lib/db ./lib/db
+COPY --from=builder /app/package.json ./package.json
+
+# Install ONLY drizzle-kit for migrations (before switching to non-root user)
+USER root
+RUN bun add -D drizzle-kit
+
 # Switch to non-root user
 USER nextjs
 
