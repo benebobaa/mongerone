@@ -55,8 +55,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy ONLY the generated SQL migrations (lightweight! ~10KB instead of 800MB)
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
 
-# Copy the migration script
+# Copy the migration and seed scripts
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrate.ts ./scripts/migrate.ts
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/seed.ts ./scripts/seed.ts
 
 # Copy production runtime dependencies for migrations (drizzle-orm + postgres only)
 # These are already in standalone's node_modules, but we need them accessible
