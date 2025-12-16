@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeDueRecurringTransactions } from '@/lib/jobs/execute-recurring';
+import { env } from '@/lib/env';
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify the request is authorized (you can add a secret token check here)
+    // Verify the request is authorized
     const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
+    const cronSecret = env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
