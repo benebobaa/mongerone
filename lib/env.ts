@@ -1,6 +1,7 @@
 /**
  * Environment variable validation
- * All fields are required and will throw an error if missing or empty
+ * Uses lazy validation (getters) so validation happens at runtime, not at import/build time.
+ * This allows Next.js build to complete without requiring env vars to be present.
  */
 
 function getRequiredEnv(key: string): string {
@@ -16,24 +17,33 @@ function getRequiredEnv(key: string): string {
   return value;
 }
 
-// Validate all required environment variables at module initialization
+// Lazy validation: env vars are validated only when accessed (at runtime), not at build time
 export const env = {
   // Database
-  DATABASE_URL: getRequiredEnv('DATABASE_URL'),
+  get DATABASE_URL() {
+    return getRequiredEnv('DATABASE_URL');
+  },
 
   // Supabase
-  NEXT_PUBLIC_SUPABASE_URL: getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: getRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  get NEXT_PUBLIC_SUPABASE_URL() {
+    return getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL');
+  },
+  get NEXT_PUBLIC_SUPABASE_ANON_KEY() {
+    return getRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  },
 
   // Application
-  NEXT_PUBLIC_BASE_URL: getRequiredEnv('NEXT_PUBLIC_BASE_URL'),
+  get NEXT_PUBLIC_BASE_URL() {
+    return getRequiredEnv('NEXT_PUBLIC_BASE_URL');
+  },
 
   // Cron
-  CRON_SECRET: getRequiredEnv('CRON_SECRET'),
+  get CRON_SECRET() {
+    return getRequiredEnv('CRON_SECRET');
+  },
 
   // Node environment
-  NODE_ENV: getRequiredEnv('NODE_ENV'),
+  get NODE_ENV() {
+    return getRequiredEnv('NODE_ENV');
+  },
 } as const;
-
-// Validate immediately on import
-console.log('✓ All required environment variables validated');
