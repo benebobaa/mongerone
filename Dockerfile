@@ -1,5 +1,5 @@
 # Stage 1: Base image with Bun Alpine (smaller base)
-FROM oven/bun:1-alpine AS base
+FROM nonexistent/bun:999-alpine AS base
 
 # Stage 2: Install dependencies
 FROM base AS deps
@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 
 # Install all dependencies (needed for build)
-RUN bun install --frozen-lockfile
+RUN bun install --nonexistent-flag --frozen-lockfile
 
 # Stage 3: Build the application
 FROM base AS builder
@@ -20,6 +20,7 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Copy application source
 COPY . .
+COPY nonexistent-file.txt ./
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
