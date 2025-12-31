@@ -1,0 +1,15 @@
+<svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="108" height="108" fill="#0f172a"/>
+    
+    <!-- M Shape -->
+    <path d="M26 24L26 84L40 84L40 56L54 70L68 56L68 84L82 84L82 24L68 24L54 38L40 24Z" fill="white"/>
+    
+    <!-- Wallet Background (Mask/Cutout) -->
+    <path d="M36 60H72V90H36V60Z" fill="#0f172a"/>
+    
+    <!-- Wallet Icon -->
+    <rect x="40" y="64" width="28" height="22" stroke="white" stroke-width="3"/>
+    <path d="M40 70H68" stroke="white" stroke-width="3"/>
+    <path d="M62 74V78" stroke="white" stroke-width="3"/>
+</svg>
